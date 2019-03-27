@@ -21,12 +21,8 @@ add_station(Name, Coords, Monitor) ->
     true -> {error, stationexists};
     false ->
       Station = #station{name = Name, coords = Coords},
-      % Updating a map returns a new map, so pattern matching comes
-      % to the rescue, but there surely is a more elegant solution
-      % List probably?
-      #monitor{monitored_stations = Stations} = Monitor,
-      Monitor#monitor{monitored_stations = Stations#{Name => Station}},
-      Monitor
+      #monitor{monitored_stations = Monitored} = Monitor,
+      Monitor#monitor{monitored_stations = Monitored#{Name => Station}}
   end.
 
 station_exists(Name, Coords, Monitor) ->
