@@ -20,6 +20,7 @@
 -type station() :: #station{}.
 
 -record(monitor, {
-  monitored_stations = #{} :: #{string() => station()}
+  by_name = #{} :: #{string() => station()},
+  by_coords = #{} :: #{coords() => station()}
 }).
 -type monitor() :: #monitor{}.
