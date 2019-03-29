@@ -9,8 +9,8 @@
 -author("karol").
 
 -type coords() :: {float(), float()}.
-
--type measurement() :: {calendar:datetime(), string(), float()}.
+-type measurement_type() :: pm10 | pm25 | pm1 | temp | humid | press.
+-type measurement() :: {calendar:datetime(), measurement_type(), float()}.
 
 -record(station, {
   name :: string(),
@@ -24,7 +24,7 @@
 %% stored stations. Still looking for a more
 %% elegant solution.
 -record(monitor, {
-  by_name = #{} :: #{{string(), coords()} => station()},
+  by_name = #{} :: #{string() => station()},
   by_coords = #{} :: #{coords() => station()}
 }).
 -type monitor() :: #monitor{}.
