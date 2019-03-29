@@ -16,9 +16,10 @@
 create_monitor() ->
   #monitor{}.
 
+-spec add_station(string(), coords(), monitor()) -> monitor() | {error, station_exists}.
 add_station(Name, Coords, Monitor) ->
   case station_exists(Name, Coords, Monitor) of
-    true -> {error, stationexists};
+    true -> {error, station_exists};
     false ->
       Station = #station{name = Name, coords = Coords},
       #monitor{by_name = BN, by_coords = BC} = Monitor,
@@ -27,26 +28,27 @@ add_station(Name, Coords, Monitor) ->
         by_coords = BC#{Coords => Station}}
   end.
 
-%%add_value(NameCoords, Timestamp, Kind, Value, Monitor)
-
-
-
-
 %% Helper functions
 
-station_exists(Name, Coords, Monitor) ->
-  false.
+-type key() :: {name, string()} | {coords, coords()}.
 
-%% This shit ain't working. New data tye for first argument? Food for thought.
--spec find_station(string(), monitor()) -> {ok, station()} | {error, not_found}.
-find_station(Name, #monitor{by_name = Stations}) ->
+-spec station_exists(string(), coords(), monitor()) -> boolean().
+station_exists(Name, Coords, Monitor) ->
+  case {find_station({name, Name}, Monitor), find_station({coords, Coords}, Monitor)} of
+    {{error, not_found}, {error, not_found}} -> false;
+    _ -> true
+  end.
+
+-spec find_station(key(), monitor()) -> station() | {error, not_found}.
+find_station({name, Name}, #monitor{by_name = Stations}) ->
   case maps:get(Name, Stations, not_found) of
     not_found -> {error, not_found};
-    #station{} = S -> {ok, S}
+    #station{} = S -> S
   end;
 
-find_station(Name, #monitor{by_coords = Stations}) ->
-  case maps:get(Name, Stations, not_found) of
+find_station({coords, Coords}, #monitor{by_name = Stations}) ->
+  case maps:get(Coords, Stations, not_found) of
     not_found -> {error, not_found};
-    #station{} = S -> {ok, S}
+    #station{} = S -> S
   end.
+

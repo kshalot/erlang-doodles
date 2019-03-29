@@ -1,6 +1,6 @@
 %%%-------------------------------------------------------------------
 %%% @author karol
-%%% @copyright (C) 2019, <COMPANY>
+%%% @copyright (C) 2019, <AGH University of Science and Technology>
 %%% @doc
 %%%
 %%% @end
@@ -19,8 +19,12 @@
 }).
 -type station() :: #station{}.
 
+%% This seems like a redundancy, but it makes
+%% life easier when it comes to later indexing
+%% stored stations. Still looking for a more
+%% elegant solution.
 -record(monitor, {
-  by_name = #{} :: #{string() => station()},
+  by_name = #{} :: #{{string(), coords()} => station()},
   by_coords = #{} :: #{coords() => station()}
 }).
 -type monitor() :: #monitor{}.
