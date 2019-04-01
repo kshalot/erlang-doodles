@@ -113,7 +113,7 @@ find_station({name, N}, #monitor{by_name = Sts}) ->
     #station{} = S -> S
   end;
 
-find_station({coords, C}, #monitor{by_name = Sts}) ->
+find_station({coords, C}, #monitor{by_coords = Sts}) ->
   case maps:get(C, Sts, not_found) of
     not_found -> {error, not_found};
     #station{} = S -> S
