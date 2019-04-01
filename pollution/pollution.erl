@@ -20,26 +20,26 @@ create_monitor() ->
   #monitor{}.
 
 -spec add_station(string(), coords(), monitor()) -> monitor() | {error, station_exists}.
-add_station(Name, Coords, Monitor) ->
-  case station_exists(Name, Coords, Monitor) of
+add_station(N, C, M) ->
+  case station_exists(N, C, M) of
     true -> {error, station_exists};
     false ->
-      Station = #station{name = Name, coords = Coords},
-      #monitor{by_name = BN, by_coords = BC} = Monitor,
-      Monitor#monitor{
-        by_name = BN#{Name => Station},
-        by_coords = BC#{Coords => Station}}
+      S = #station{name = N, coords = C},
+      #monitor{by_name = BN, by_coords = BC} = M,
+      M#monitor{
+        by_name = BN#{N => S},
+        by_coords = BC#{C => S}}
   end.
 
 -spec add_measurement(key(), calendar:datetime(), measurement_type(), float(), monitor()) ->
   monitor() | {error, no_station} | {error, measurement_exists}.
-add_measurement(Key, Time, Type, Value, Monitor) ->
-  case find_station(Key, Monitor) of
-    #station{data = Data} = S ->
-      case find_measurement(Time, Type, S) of
+add_measurement(K, Tm, Tp, V, M) ->
+  case find_station(K, M) of
+    #station{data = D} = S ->
+      case find_measurement(Tm, Tp, S) of
         {error, not_found} ->
-          NewData = [{Time, Type, Value} | Data],
-          update_station(S#station{data = NewData}, Monitor);
+          ND = [{Tm, Tp, V} | D],
+          update_station(S#station{data = ND}, M);
         _ -> {error, measurement_exists}
       end;
     {error, not_found} -> {error, no_station}
@@ -47,77 +47,85 @@ add_measurement(Key, Time, Type, Value, Monitor) ->
 
 -spec remove_measurement(key(), calendar:datetime(), measurement_type(), monitor()) ->
   monitor() | {error, no_measurement} | {error, no_station}.
-remove_measurement(Key, Time, Type, Monitor) ->
-  case find_station(Key, Monitor) of
-    #station{data = Data} = S ->
-      case find_measurement(Time, Type, S) of
+remove_measurement(K, Tm, Tp, M) ->
+  case find_station(K, M) of
+    #station{data = D} = S ->
+      case find_measurement(Tm, Tp, S) of
         {error, not_found} -> {error, no_measurement};
-        Measurement ->
-          NewData = lists:filter(fun(D) ->
-            not measurement_equals(Measurement, D) end, Data),
-          update_station(S#station{data = NewData}, Monitor)
+        Msr ->
+          ND = lists:filter(fun(X) ->
+            not measurement_equals(Msr, X) end, D),
+          update_station(S#station{data = ND}, M)
       end;
     _ -> {error, no_station}
   end.
 
 -spec get_measurement(key(), calendar:datetime(), measurement_type(), monitor()) ->
   measurement() | {error, not_found} | {error, no_station}.
-get_measurement(Key, Time, Type, Monitor) ->
-  case find_station(Key, Monitor) of
+get_measurement(K, Tm, Tp, M) ->
+  case find_station(K, M) of
     #station{} = S ->
-      find_measurement(Time, Type, S);
+      find_measurement(Tm, Tp, S);
     _ -> {error, no_station}
   end.
 
 -spec get_station_mean(key(), measurement_type(), monitor()) ->
   float() | {error, no_station} | undefined.
-get_station_mean(Key, Type, Monitor) ->
-  case find_station(Key, Monitor) of
-    #station{data = Data} ->
+get_station_mean(K, Tp, M) ->
+  case find_station(K, M) of
+    #station{data = D} ->
       Vals = lists:filtermap(fun({_, T, V}) ->
-        case T =:= Type of
+        case T =:= Tp of
           false -> false;
           _ -> {true, V}
-        end end, Data),
+        end end, D),
       mean(Vals);
     {error, not_found} -> {error, no_station}
   end.
 
 -spec get_daily_mean(calendar:date(), measurement_type(), monitor()) ->
   float() | undefined.
-get_daily_mean(Date, Type, Monitor) ->
-  %%todo
-  undefined.
+get_daily_mean(Tm, Tp, #monitor{by_name = BN}) ->
+  Vals = lists:flatmap(
+    fun({_, #station{data = D}}) ->
+      lists:filtermap(fun({{X, _}, T, V}) ->
+        case X =:= Tm andalso T =:= Tp of
+          true -> {true,V};
+          _ -> false
+        end
+      end, D)
+  end, maps:to_list(BN)),
+  mean(Vals).
 
 %% Helper functions
 
 -spec station_exists(string(), coords(), monitor()) -> boolean().
-station_exists(Name, Coords, Monitor) ->
-  case {find_station({name, Name}, Monitor), find_station({coords, Coords}, Monitor)} of
+station_exists(N, C, M) ->
+  case {find_station({name, N}, M), find_station({coords, C}, M)} of
     {{error, not_found}, {error, not_found}} -> false;
     _ -> true
   end.
 
 -spec find_station(key(), monitor()) -> station() | {error, not_found}.
-find_station({name, Name}, #monitor{by_name = Stations}) ->
-  case maps:get(Name, Stations, not_found) of
+find_station({name, N}, #monitor{by_name = Sts}) ->
+  case maps:get(N, Sts, not_found) of
     not_found -> {error, not_found};
     #station{} = S -> S
   end;
 
-find_station({coords, Coords}, #monitor{by_name = Stations}) ->
-  case maps:get(Coords, Stations, not_found) of
+find_station({coords, C}, #monitor{by_name = Sts}) ->
+  case maps:get(C, Sts, not_found) of
     not_found -> {error, not_found};
     #station{} = S -> S
   end.
 
 -spec find_measurement(calendar:datetime(), measurement_type(), station()) ->
   measurement() | {error, not_found}.
-find_measurement(Time, Type, Station) ->
-  Data = Station#station.data,
-  Target = {Time, Type, 0.0},
-  case lists:filter(fun(D) -> measurement_equals(Target, D) end, Data) of
-    [Measurement] -> Measurement;
+find_measurement(Tm, Tp, S) ->
+  D = S#station.data,
+  T = {Tm, Tp, 0.0},
+  case lists:filter(fun(X) -> measurement_equals(T, X) end, D) of
+    [Msr] -> Msr;
     [] -> {error, not_found}
   end.
 
