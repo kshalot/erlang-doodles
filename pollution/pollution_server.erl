@@ -7,8 +7,8 @@
 
 
 %% API
--export(start/0, add_station/2, add_measurement/4, remove_measurement/3,
-        get_measurement/3, get_station_mean/2, get_daily_mean/2).
+-export([start/0, add_station/2, add_measurement/4, remove_measurement/3,
+        get_measurement/3, get_station_mean/2, get_daily_mean/2]).
 
 
 %% Public functions
