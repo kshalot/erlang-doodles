@@ -3,19 +3,17 @@
 
 -include("pollution.hrl").
 
--type key() :: {name, string()} | {coords, coords()}.
 % Internal state of the server is defined as an instance of monitor()
 -type state() :: monitor().
 
 %% API
 -export([start/0]).
 
-
 %% Public functions
 
 -spec start() -> ok.
 start() ->
-    register(?MODULE, spawn(init/1)),
+    register(?MODULE, spawn(fun init/0)),
     ok.
 
 %% Server functions
@@ -38,7 +36,7 @@ loop(State) ->
     end.
 
 respond({add_station, N, C}, State) ->
-    case pollution:add_station(N, C, S) of
+    case pollution:add_station(N, C, State) of
         #monitor{} = M ->
             {ok, M};
         Failed ->
@@ -63,4 +61,27 @@ respond({remove_measurement, K, Tm, Tp}, State) ->
 
 respond({get_measurement, K, Tm, Tp}, State) ->
     case pollution:get_measurement(K, Tm, Tp, State) of
-        measurement() = 
+        Value when is_float(Value) ->
+            {Value, State};
+        Failed ->
+            {Failed, State}
+    end;
+
+respond({get_station_mean, K, Tp}, State) ->
+    case pollution:get_station_mean(K, Tp, State) of
+        Value when is_float(Value) ->
+            {Value, State};
+        Failed ->
+            {Failed, State}
+    end;
+
+respond({get_daily_mean, Tm, Tp}, State) ->
+    case pollution:get_daily_mean(Tm, Tp, State) of
+        Value when is_float(Value) ->
+            {Value, State};
+        Failed ->
+            {Failed, State}
+    end;
+
+respond(_Request, State) ->
+    {{error, invalid_request}, State}.
