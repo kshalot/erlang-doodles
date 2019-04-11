@@ -1,4 +1,4 @@
--module(pollution-server).
+-module(pollution_server).
 -author("karol").
 
 -include("pollution.hrl").
