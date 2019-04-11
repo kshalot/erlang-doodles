@@ -4,7 +4,8 @@
 -include("pollution.hrl").
 
 -type key() :: {name, string()} | {coords, coords()}.
-
+% Internal state of the server is defined as an instance of monitor()
+-type state() :: monitor().
 
 %% API
 -export([start/0, add_station/2, add_measurement/4, remove_measurement/3,
