@@ -8,8 +8,7 @@
 -type state() :: monitor().
 
 %% API
--export([start/0, add_station/2, add_measurement/4, remove_measurement/3,
-        get_measurement/3, get_station_mean/2, get_daily_mean/2]).
+-export([start/0]).
 
 
 %% Public functions
@@ -18,37 +17,6 @@
 start() ->
     register(?MODULE, spawn(init/1)),
     ok.
-
--spec add_station(string(), coords()) ->
-    ok | {error, station_exists}.
-add_station(N, C) ->
-    pass.
-
--spec add_measurement(key(), calendar:datetime(), measurement_type(), float()) ->
-    ok | {error, no_station | measurement_exists}.
-add_measurement(K, Tm, Tp, V) ->
-    pass.
-
--spec remove_measurement(key(), calendar:datetime(), measurement_type()) ->
-    ok | {error, no_measurement | no_station}.
-remove_measurement(K, Tm, Tp) ->
-    pass.
-
--spec get_measurement(key(), calendar:datetime(), measurement_type()) ->
-    float() | {error, not_found | no_station}.
-get_measurement(K, Tm, Tp) ->
-    pass.
-
--spec get_station_mean(key(), measurement_type()) ->
-    float() | {error, no_station} | undefined.
-get_station_mean(K, Tp) ->
-    pass.
-
--spec get_daily_mean(calendar:date(), measurement_type()) ->
-    float() | undefined.
-get_daily_mean(Tm, Tp) ->
-    pass.
-
 
 %% Server functions
 
@@ -62,7 +30,37 @@ loop(State) ->
             Sender ! {stopped, State},
             State;
         {Request, Sender} ->
-            pass;
+            {Response, NewState} = respond(Request, State),
+            Sender ! Response,
+            loop(NewState);
         _ ->
             loop(State)
     end.
+
+respond({add_station, N, C}, State) ->
+    case pollution:add_station(N, C, S) of
+        #monitor{} = M ->
+            {ok, M};
+        Failed ->
+            {Failed, State}
+    end;
+
+respond({add_measurement, K, Tm, Tp, V}, State) ->
+    case pollution:add_measurement(K, Tm, Tp, V, State) of
+        #monitor{} = M ->
+            {ok, M};
+        Failed ->
+            {Failed, State}
+    end;
+
+respond({remove_measurement, K, Tm, Tp}, State) ->
+    case pollution:remove_measurement(K, Tm, Tp, State) of
+        #monitor{} = M ->
+            {ok, M};
+        Failed ->
+            {Failed, State}
+    end;
+
+respond({get_measurement, K, Tm, Tp}, State) ->
+    case pollution:get_measurement(K, Tm, Tp, State) of
+        measurement() = 
