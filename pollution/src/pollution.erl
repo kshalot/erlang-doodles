@@ -8,7 +8,7 @@
 %%%-------------------------------------------------------------------
 -module(pollution).
 -author("karol").
--include("pollution.hrl").
+-include("../include/pollution.hrl").
 
 -type key() :: {name, string()} | {coords, coords()}.
 

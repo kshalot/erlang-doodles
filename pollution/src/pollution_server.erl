@@ -1,7 +1,7 @@
 -module(pollution_server).
 -author("karol").
 
--include("pollution.hrl").
+-include("../include/pollution.hrl").
 
 % Internal state of the server is defined as an instance of monitor()
 -type state() :: monitor().
