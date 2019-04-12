@@ -12,7 +12,10 @@
 
 -type key() :: {name, string()} | {coords, coords()}.
 
+%%====================================================================
 %% API
+%%====================================================================
+
 -export([create_monitor/0, add_station/3, add_measurement/5, remove_measurement/4,
          get_measurement/4, get_station_mean/3, get_daily_mean/3]).
 
@@ -97,7 +100,9 @@ get_daily_mean(Tm, Tp, #monitor{by_name = BN}) ->
   end, maps:to_list(BN)),
   mean(Vals).
 
-%% Helper functions
+%%====================================================================
+%% Internal functions
+%%====================================================================
 
 -spec station_exists(string(), coords(), monitor()) -> boolean().
 station_exists(N, C, M) ->

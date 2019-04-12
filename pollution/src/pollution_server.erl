@@ -3,20 +3,23 @@
 
 -include("../include/pollution.hrl").
 
-% Internal state of the server is defined as an instance of monitor()
+%% Internal state of the server is defined as an instance of monitor()
 -type state() :: monitor().
 
-%% API
 -export([start/0]).
 
-%% Public functions
+%%====================================================================
+%% API
+%%====================================================================
 
 -spec start() -> ok.
 start() ->
     register(?MODULE, spawn(fun init/0)),
     ok.
 
-%% Server functions
+%%====================================================================
+%% Server internals
+%%====================================================================
 
 init() ->
     loop(#monitor{}).
