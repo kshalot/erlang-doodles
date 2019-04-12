@@ -1,5 +1,5 @@
 {application, pollution,
- [{description, "An OTP application"},
+ [{description, "An air quality tracking application"},
   {vsn, "0.1.0"},
   {registered, []},
   {mod, {pollution_app, []}},
