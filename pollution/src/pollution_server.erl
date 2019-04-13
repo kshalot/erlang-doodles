@@ -19,7 +19,7 @@
 -define(SERVER, ?MODULE).
 
 %%====================================================================
-%% API
+%% Client Call
 %%====================================================================
 
 -spec start_link() -> ok.
@@ -31,11 +31,12 @@ stop()->
     gen_server:stop(?SERVER).
 
 %%====================================================================
-%% Gen_Server Callbacks
+%% Server Callbacks
 %%====================================================================
 
 init([]) ->
     process_flag(trap_exit, true),
+    io:format("~p (~p) starting... ~n", [{local, ?SERVER}, self()]),
     State = #monitor{},
     {ok, State}.
 

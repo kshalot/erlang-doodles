@@ -1,5 +1,4 @@
 .rebar3
-src/rebar.lock
 _*
 .eunit
 *.o
