@@ -8,7 +8,8 @@
     stdlib
    ]},
   {env,[]},
-  {modules, []},
+  {modules, [pollution_app, pollution_sup,
+             pollution_server, pollution_logic]},
 
   {licenses, ["Apache 2.0"]},
   {links, []}

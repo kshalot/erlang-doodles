@@ -13,7 +13,7 @@
 -export([init/1, terminate/2, handle_call/3, handle_cast/2, handle_info/2]).
 %% API
 -export([start_link/0, stop/0, add_station/2, add_measurement/4, remove_measurement/3,
-         get_measurement/3, get_station_mean/2, get_daily_mean/2]).
+         get_measurement/3, get_station_mean/2, get_daily_mean/2, get_state/0]).
 
 %% Internal state of the server is defined as an instance of monitor()
 -type state() :: monitor().
@@ -62,6 +62,10 @@ get_station_mean(K, Tp) ->
 get_daily_mean(Dt, Tp) ->
     gen_server:call(?MODULE, {get_daily_mean, Dt, Tp}).
 
+-spec get_state() -> state().
+get_state() ->
+    gen_server:call(?MODULE, get_state).
+
 %%====================================================================
 %% Server Callbacks
 %%====================================================================
@@ -79,7 +83,7 @@ handle_call(get_state, _From, State) ->
     {reply, State, State};
 
 handle_call({add_station, N, C}, _From, State) ->
-    case pollution:add_station(N, C, State) of
+    case pollution_logic:add_station(N, C, State) of
         #monitor{} = M ->
             {reply, ok, M};
         Failed ->
@@ -87,7 +91,7 @@ handle_call({add_station, N, C}, _From, State) ->
     end;
 
 handle_call({add_measurement, K, Tm, Tp, V}, _From, State) ->
-    case pollution:add_measurement(K, Tm, Tp, V, State) of
+    case pollution_logic:add_measurement(K, Tm, Tp, V, State) of
         #monitor{} = M ->
             {reply, ok, M};
         Failed ->
@@ -95,7 +99,7 @@ handle_call({add_measurement, K, Tm, Tp, V}, _From, State) ->
     end;
 
 handle_call({remove_measurement, K, Tm, Tp}, _From, State) ->
-    case pollution:remove_measurement(K, Tm, Tp, State) of
+    case pollution_logic:remove_measurement(K, Tm, Tp, State) of
         #monitor{} = M ->
             {reply, ok, M};
         Failed ->
@@ -103,7 +107,7 @@ handle_call({remove_measurement, K, Tm, Tp}, _From, State) ->
     end;
 
 handle_call({get_measurement, K, Tm, Tp}, _From, State) ->
-    case pollution:get_measurement(K, Tm, Tp, State) of
+    case pollution_logic:get_measurement(K, Tm, Tp, State) of
         Value when is_float(Value) ->
             {reply, Value, State};
         Failed ->
@@ -111,7 +115,7 @@ handle_call({get_measurement, K, Tm, Tp}, _From, State) ->
     end;
 
 handle_call({get_station_mean, K, Tp}, _From, State) ->
-    case pollution:get_station_mean(K, Tp, State) of
+    case pollution_logic:get_station_mean(K, Tp, State) of
         Value when is_float(Value) ->
             {reply, Value, State};
         Failed ->
@@ -119,7 +123,7 @@ handle_call({get_station_mean, K, Tp}, _From, State) ->
     end;
 
 handle_call({get_daily_mean, Tm, Tp}, _From, State) ->
-    case pollution:get_daily_mean(Tm, Tp, State) of
+    case pollution_logic:get_daily_mean(Tm, Tp, State) of
         Value when is_float(Value) ->
             {reply, Value, State};
         Failed ->
