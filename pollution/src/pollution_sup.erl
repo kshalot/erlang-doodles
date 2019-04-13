@@ -4,6 +4,7 @@
 %%%-------------------------------------------------------------------
 
 -module(pollution_sup).
+-author("karol").
 
 -behaviour(supervisor).
 

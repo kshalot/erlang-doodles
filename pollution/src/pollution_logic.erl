@@ -1,5 +1,5 @@
 %%%-------------------------------------------------------------------
-%% @doc main app functionality
+%% @doc application logic
 %% @end
 %%%-------------------------------------------------------------------
 -module(pollution_logic).
@@ -93,6 +93,11 @@ get_daily_mean(Tm, Tp, #monitor{by_name = BN}) ->
       end, D)
   end, maps:to_list(BN)),
   mean(Vals).
+
+-spec get_max_gradient_stations(monitor()) ->
+  {station(), station()} | undefined.
+get_max_gradient_stations(#monitor{by_coords = BC}) ->
+    pass.
 
 %%====================================================================
 %% Internal functions

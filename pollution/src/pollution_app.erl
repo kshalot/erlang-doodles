@@ -4,6 +4,7 @@
 %%%-------------------------------------------------------------------
 
 -module(pollution_app).
+-author("karol").
 
 -behaviour(application).
 
