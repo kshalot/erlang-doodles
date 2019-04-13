@@ -97,7 +97,11 @@ get_daily_mean(Tm, Tp, #monitor{by_name = BN}) ->
 -spec get_max_gradient_stations(monitor()) ->
   {station(), station()} | undefined.
 get_max_gradient_stations(#monitor{by_coords = BC}) ->
-    pass.
+    StationVectors = lists:map(
+      fun({_, S}) ->
+        {S, get_station_vectors(S)}
+      end, maps:to_list(BC)),
+    todo.
 
 %%====================================================================
 %% Internal functions
@@ -147,3 +151,8 @@ update_station(S, #monitor{by_name = BN, by_coords = BC} = M) ->
 -spec mean([float()]) -> float() | undefined.
 mean([]) -> undefined;
 mean(Vals) -> lists:sum(Vals) / length(Vals).
+
+-spec get_station_vectors(station()) -> [{float(), float(), float()}].
+get_station_vectors(S) ->
+    {X, Y} = S#station.coords,
+    lists:map(fun({_, _, V}) -> {true, {X, Y, V}} end, S#station.data). 
