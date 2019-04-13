@@ -11,6 +11,7 @@
 -type coords() :: {float(), float()}.
 -type measurement_type() :: pm10 | pm25 | pm1 | temp | humid | press.
 -type measurement() :: {calendar:datetime(), measurement_type(), float()}.
+-type key() :: {name, string()} | {coords, coords()}.
 
 -record(station, {
   name :: string(),

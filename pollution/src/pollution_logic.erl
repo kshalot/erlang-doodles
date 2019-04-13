@@ -2,11 +2,9 @@
 %% @doc main app functionality
 %% @end
 %%%-------------------------------------------------------------------
--module(pollution).
+-module(pollution_logic).
 -author("karol").
 -include("../include/pollution.hrl").
-
--type key() :: {name, string()} | {coords, coords()}.
 
 %%====================================================================
 %% API

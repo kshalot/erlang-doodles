@@ -3,7 +3,7 @@
 %% @end
 %%%-------------------------------------------------------------------
 
--module(pollution_sup).
+-module(pollution_server_sup).
 
 -behaviour(supervisor).
 
