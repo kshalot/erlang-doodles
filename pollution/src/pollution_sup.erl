@@ -19,6 +19,7 @@
 %% API
 %%====================================================================
 
+-spec start_link() -> ok.
 start_link() ->
     supervisor:start_link({local, ?SERVER}, ?MODULE, []).
 

@@ -1,10 +1,6 @@
 %%%-------------------------------------------------------------------
-%%% @author karol
-%%% @copyright (C) 2019, <AGH University of Science and Technology>
-%%% @doc
-%%%
-%%% @end
-%%% Created : 19. Mar 2019 12:31
+%% @doc main app functionality
+%% @end
 %%%-------------------------------------------------------------------
 -module(pollution).
 -author("karol").
