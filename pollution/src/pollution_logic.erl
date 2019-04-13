@@ -155,4 +155,4 @@ mean(Vals) -> lists:sum(Vals) / length(Vals).
 -spec get_station_vectors(station()) -> [{float(), float(), float()}].
 get_station_vectors(S) ->
     {X, Y} = S#station.coords,
-    lists:map(fun({_, _, V}) -> {true, {X, Y, V}} end, S#station.data). 
+    lists:map(fun({_, _, V}) -> {X, Y, V} end, S#station.data). 
