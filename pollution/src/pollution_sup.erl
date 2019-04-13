@@ -3,7 +3,7 @@
 %% @end
 %%%-------------------------------------------------------------------
 
--module(pollution_server_sup).
+-module(pollution_sup).
 
 -behaviour(supervisor).
 
@@ -19,6 +19,11 @@
 %% API
 %%====================================================================
 
+-spec start_link_shell() -> true.
+start_link_shell() ->
+    {ok, Pid} = supervisor:start_link({local, ?SERVER}, ?MODULE, []),
+    unlink(Pid).
+
 -spec start_link() -> ok.
 start_link() ->
     supervisor:start_link({local, ?SERVER}, ?MODULE, []).
@@ -28,8 +33,19 @@ start_link() ->
 %%====================================================================
 
 init([]) ->
-    {ok, {{one_for_all, 0, 1}, []}}.
+    io:format("~p (~p) starting... ~n", [{local, ?MODULE}, self()]),
 
-%%====================================================================
-%% Internal functions
-%%====================================================================
+    RestartStrategy = one_for_one,
+    MaxRestarts = 3,
+    MaxSecondsBetweenRestarts = 60,
+    Flags = {RestartStrategy, MaxRestarts, MaxSecondsBetweenRestarts},
+
+    Restart = permanent,
+    Shutdown = 3600,
+    Type = worker,
+
+    ChildSpec = {pollution_serverID, {pollution_server, start_link, []},
+                 Restart, Shutdown, Type, [pollution_gen_server]},
+
+    {ok, {Flags, [ChildSpec]}}.
+
